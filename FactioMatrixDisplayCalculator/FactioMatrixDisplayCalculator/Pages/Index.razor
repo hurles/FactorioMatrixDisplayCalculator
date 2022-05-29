@@ -1,0 +1,64 @@
+﻿@page "/"
+
+<h3>Current: @Number</h3>
+
+<table>
+@for (int y = 0, i = 0; y < _height; y++) 
+{
+    <tr>
+    @for (int x = 0; x < _width; x++, i++)
+    {
+        var index = i;
+        @if (!ActivatedNumberList[i])
+        {
+            <td><button class="choicebutton" @onclick="() => ToggleNumber(index)">@i</button></td>
+        }
+        else
+        {
+            <td><button class="choicebutton-active" @onclick="() => ToggleNumber(index)">@i</button></td>
+        }
+    }
+    </tr>
+}
+</table>
+
+@code {
+    public Dictionary<long, long> NumberList = new Dictionary<long, long>();
+    public Dictionary<long, bool> ActivatedNumberList = new Dictionary<long, bool>();
+
+    private long _width = 5;
+    private long _height = 6;
+
+    public long Number = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        NumberList.Clear();
+
+        var counter = 1;
+
+        for (int i = 0; i < _width * _height; i++)
+        {
+            NumberList.Add(i, counter);
+            ActivatedNumberList.Add(i, false);
+            counter = counter * 2;
+        }
+    }
+
+    private EventCallback ToggleNumber(long index)
+    {
+        Console.WriteLine("index: " + index);
+
+        ActivatedNumberList[index] = !ActivatedNumberList[index];
+        UpdateNumber();
+
+        return EventCallback.Empty;
+    }
+
+    private void UpdateNumber()
+    {
+        Number = NumberList.Where(n => ActivatedNumberList[n.Key]).Sum(n => n.Value);
+        Console.WriteLine(Number);
+        StateHasChanged();
+    }
+}
